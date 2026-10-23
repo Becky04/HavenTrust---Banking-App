@@ -22,33 +22,3 @@ export const monoRequest = async (
 
   return res.json();
 };
-
-// DirectPay transfer — call this when user wants to send money
-export const initiateMonoTransfer = async ({
-  accountId,
-  amount,
-  description,
-  customer,
-}: {
-  accountId: string;
-  amount: number;
-  description: string;
-  customer: { name: string; email: string };
-}) => {
-  return monoRequest("/payments/initiate", {
-    method: "POST",
-    body: JSON.stringify({
-      account: accountId,
-      amount,
-      type: "onetime-debit",
-      description,
-      reference: `TXN-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-      customer, // ✅ add this
-    }),
-  });
-};
-
-export const getMonoAccountDetails = async (accountId: string) => {
-  const response = await monoRequest(`/accounts/${accountId}`);
-  return response.data.account; // has account_number, institution.bank_code, name
-};

@@ -3,8 +3,10 @@ import { Inter, IBM_Plex_Serif, Geist } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 import { cn } from "@/lib/utils";
+import { Toaster } from "react-hot-toast";
+import InactivityTracker from "@/components/InactivityTracker";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const ibmPlexSerif = IBM_Plex_Serif({
@@ -27,13 +29,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn(inter.variable, ibmPlexSerif.variable, "font-sans", geist.variable)}>
+    <html
+      lang="en"
+      className={cn(
+        inter.variable,
+        ibmPlexSerif.variable,
+        "font-sans",
+        geist.variable,
+      )}
+    >
       <body>
-        {children}
+        <InactivityTracker>{children}</InactivityTracker>
         <Script
           src="https://connect.withmono.com/connect.js"
           strategy="afterInteractive"
         />
+        <Toaster />
       </body>
     </html>
   );

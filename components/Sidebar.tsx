@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useEffect, useState } from "react";
 import { sidebarLinks } from "@/constants";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -10,6 +11,21 @@ import MonoLink from "./MonoLink";
 
 const Sidebar = ({ user }: SiderbarProps) => {
   const pathName = usePathname();
+  const [isConnectBankActive, setIsConnectBankActive] = useState(false);
+  const handleOpen = useCallback(() => setIsConnectBankActive(true), []);
+  const handleClose = useCallback(() => setIsConnectBankActive(false), []);
+  useEffect(() => {
+    setIsConnectBankActive(false);
+  }, [pathName]);
+  useEffect(() => {
+    setIsConnectBankActive(false);
+  }, [pathName]);
+
+  useEffect(() => {
+    const handleClosed = () => setIsConnectBankActive(false);
+    window.addEventListener("mono-widget-closed", handleClosed);
+    return () => window.removeEventListener("mono-widget-closed", handleClosed);
+  }, []);
   return (
     <section className="sidebar">
       <nav className="flex flex-col gap-4">
@@ -23,32 +39,52 @@ const Sidebar = ({ user }: SiderbarProps) => {
           />
           <h1 className="sidebar-logo">HavenTrust</h1>
         </Link>
+
         {sidebarLinks.map((item) => {
           const isActive =
-            pathName === item.route || pathName.startsWith(`${item.route}/`);
+            !isConnectBankActive &&
+            (item.route === "/"
+              ? pathName === "/"
+              : pathName === item.route ||
+                pathName.startsWith(`${item.route}/`));
           return (
             <Link
               href={item.route}
               key={item.label}
-              className={cn("sidebar-link", { "bg-bank-gradient": isActive })}
+              className={cn("sidebar-link", {
+                "bg-bank-gradient": isActive,
+              })}
             >
               <div className="relative size-6">
                 <Image
                   src={item.imgURL}
                   alt={item.label}
                   fill
-                  className={cn({ "brightness-[3] invert-0": isActive })}
+                  className={cn({
+                    "brightness-[3] invert-0": isActive,
+                  })}
                 />
               </div>
-              <p className={cn("sidebar-label", { "!text-white": isActive })}>
+
+              <p
+                className={cn("sidebar-label", {
+                  "!text-white": isActive,
+                })}
+              >
                 {item.label}
               </p>
             </Link>
           );
         })}
 
-        <MonoLink user={user} />
+        <MonoLink
+          user={user}
+          onOpen={handleOpen}
+          onClose={handleClose}
+          isActive={isConnectBankActive}
+        />
       </nav>
+
       <Footer user={user} />
     </section>
   );

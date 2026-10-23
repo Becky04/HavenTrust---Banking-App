@@ -9,7 +9,7 @@ const Transfer = async () => {
   if (!loggedIn) return null;
 
   const accounts = await getAccounts({
-    userId: loggedIn.userId, // use userId not $id
+    userId: loggedIn.userId,
   });
 
   if (!accounts) return null;
@@ -20,7 +20,7 @@ const Transfer = async () => {
     <section className="payment-transfer">
       <HeaderBox
         title="Payment Transfer"
-        subtext="Please provide any specific details or notes related to the payment transfer"
+        subtext="Please provide any specific details or notes related to the payment transfer."
       />
       <section className="size-full pt-5">
         <PaymentTransferForm accounts={accountsData} />

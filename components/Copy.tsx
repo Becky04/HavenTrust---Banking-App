@@ -1,58 +1,74 @@
 "use client";
+
 import { useState } from "react";
 import { Button } from "./ui/button";
+import toast from "react-hot-toast";
 
 const Copy = ({ title }: { title: string }) => {
   const [hasCopied, setHasCopied] = useState(false);
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(title);
-    setHasCopied(true);
-    setTimeout(() => {
-      setHasCopied(false);
-    }, 2000);
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(title);
+      setHasCopied(true);
+      toast.success("Account details copied!");
+
+      setTimeout(() => {
+        setHasCopied(false);
+      }, 2000);
+    } catch {
+      toast.error("Could not copy account details.");
+    }
   };
+
+  const shortTitle =
+    title.length > 14 ? `${title.slice(0, 10)}...${title.slice(-5)}` : title;
 
   return (
     <Button
+      type="button"
       data-state="closed"
-      className="mt-3 flex max-w-[320px] gap-4"
+      className="flex h-7 min-w-0 max-w-full items-center justify-center gap-6 px-2 py-1"
       variant="secondary"
       onClick={copyToClipboard}
+      title="Copy full shareable ID"
     >
-      <p className="line-clamp-1 w-full max-w-full text-xs font-medium text-black-2">
-        {title}
-      </p>
-      {!hasCopied ? (
+      <span className="min-w-0 truncate text-xs font-medium leading-none text-black-2 ">
+        {shortTitle}
+      </span>
+
+      {hasCopied ? (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
+          width="16"
+          height="16"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="mr-2 size-4"
+          className="size-4 shrink-0"
+          aria-label="Copied"
         >
-          <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
-          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+          <polyline points="20 6 9 17 4 12" />
         </svg>
       ) : (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
+          width="16"
+          height="16"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="mr-2 size-4"
+          className="size-4 shrink-0"
+          aria-label="Copy"
         >
-          <polyline points="20 6 9 17 4 12"></polyline>
+          <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
         </svg>
       )}
     </Button>

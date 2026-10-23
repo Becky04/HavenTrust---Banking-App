@@ -15,43 +15,57 @@ export const getAccounts = async ({ userId }: getAccountsProps) => {
         data: [],
         totalBanks: 0,
         totalCurrentBalance: 0,
+        totalSimulatedBalance: 0,
       });
     }
 
     const accounts = await Promise.all(
-      banks?.map(async (bank: Bank) => {
-        // get account info from Mono using the accountId we saved
-        const accountResponse = await monoRequest(
-          `/accounts/${bank.accountId}`,
-        );
+      banks.map(async (bank: Bank) => {
+        // Get real account information from Mono
+        const accountResponse = await monoRequest(`/accounts/${bank.bankId}`);
+
         const accountData = accountResponse.data.account;
 
         const account = {
-          id: bank.accountId,
-          availableBalance: accountData.balance / 100,
-          currentBalance: accountData.balance / 100,
+          id: bank.bankId,
+
+          // Simulated balance from Appwrite, stored in kobo
+          simulatedBalance: bank.simulatedBalance / 100,
+
+          simulatedAccountNumber: bank.simulatedAccountNumber,
+
           institutionId: accountData.institution.bankCode,
           name: accountData.name,
           officialName: accountData.institution.name,
-          mask: accountData.account_number?.slice(-4) || "0000",
           type: accountData.type,
-          subtype: accountData.type,
           appwriteItemId: bank.$id,
           shareableId: bank.shareableId,
         };
-
         return account;
       }),
     );
 
     const totalBanks = accounts.length;
-    const totalCurrentBalance = accounts.reduce((total, account) => {
-      return total + account.currentBalance;
-    }, 0);
 
-    return parseStringify({ data: accounts, totalBanks, totalCurrentBalance });
+    const totalCurrentBalance = accounts.reduce(
+      (total, account) => total + account.currentBalance,
+      0,
+    );
+
+    const totalSimulatedBalance = accounts.reduce(
+      (total, account) => total + account.simulatedBalance,
+      0,
+    );
+
+    return parseStringify({
+      data: accounts,
+      totalBanks,
+      totalCurrentBalance,
+      totalSimulatedBalance,
+    });
   } catch (error) {
     console.error("Error getting accounts:", error);
+    throw error;
   }
 };
 
@@ -65,11 +79,12 @@ export const getAccount = async ({ appwriteItemId }: getAccountProps) => {
       return null;
     }
 
-    // get account info from Mono
-    const accountResponse = await monoRequest(`/accounts/${bank.accountId}`);
+    // Get real account information from Mono
+    const accountResponse = await monoRequest(`/accounts/${bank.bankId}`);
+
     const accountData = accountResponse.data.account;
 
-    // get transfer transactions from appwrite
+    // Get transfer transactions recorded in Appwrite
     const transferTransactionsData = await getTransactionsByBankId({
       bankId: bank.$id,
     }).catch(() => ({ documents: [] }));
@@ -86,22 +101,28 @@ export const getAccount = async ({ appwriteItemId }: getAccountProps) => {
       }),
     );
 
-    // get transactions from Mono
-    const transactions = await getTransactions({ accountId: bank.accountId });
+    // Get real transactions from Mono
+    const transactions = await getTransactions({
+      accountId: bank.bankId,
+    });
 
     const account = {
-      id: bank.accountId,
-      availableBalance: accountData.balance / 100,
-      currentBalance: accountData.balance / 100,
+      id: bank.bankId,
+
+      // Simulated balance from Appwrite, stored in kobo
+      simulatedBalance: bank.simulatedBalance / 100,
+
+      simulatedAccountNumber: bank.simulatedAccountNumber,
+
       institutionId: accountData.institution.bankCode,
       name: accountData.name,
       officialName: accountData.institution.name,
-      mask: accountData.account_number.slice(-4),
       type: accountData.type,
-      subtype: accountData.type,
       appwriteItemId: bank.$id,
+      shareableId: bank.shareableId,
     };
 
+    // Combine real Mono transactions and simulated transfers
     const allTransactions = [...transactions, ...transferTransactions].sort(
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
     );
@@ -112,18 +133,7 @@ export const getAccount = async ({ appwriteItemId }: getAccountProps) => {
     });
   } catch (error) {
     console.error("Error getting account:", error);
-  }
-};
-
-// Get institution info from Mono
-export const getInstitution = async ({
-  institutionId,
-}: getInstitutionProps) => {
-  try {
-    const response = await monoRequest(`/institutions/${institutionId}`);
-    return parseStringify(response.data);
-  } catch (error) {
-    console.error("Error getting institution:", error);
+    throw error;
   }
 };
 
@@ -131,18 +141,14 @@ export const getInstitution = async ({
 export const getTransactions = async ({ accountId }: { accountId: string }) => {
   try {
     const response = await monoRequest(`/accounts/${accountId}/transactions`);
-    console.log(
-      "Mono transactions response:",
-      JSON.stringify(response, null, 2),
-    );
 
     const transactions = response.data.map((transaction: any) => ({
       id: transaction.id,
       name: transaction.narration,
       paymentChannel: "online",
-      type: transaction.type, // "debit" or "credit"
-      accountId: accountId,
-      amount: transaction.amount / 100, // Mono returns amount in kobo
+      type: transaction.type,
+      accountId,
+      amount: transaction.amount / 100,
       pending: false,
       category: transaction.category || "",
       date: transaction.date,
@@ -151,7 +157,7 @@ export const getTransactions = async ({ accountId }: { accountId: string }) => {
 
     return transactions;
   } catch (error) {
-    console.error("Error getting transactions:", error);
+    console.error("Error getting Mono transactions:", error);
     return [];
   }
 };

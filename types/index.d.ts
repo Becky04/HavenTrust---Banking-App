@@ -53,6 +53,8 @@ declare type Account = {
   id: string;
   availableBalance: number;
   currentBalance: number;
+  simulatedBalance: number;
+  simulatedAccountNumber: string;
   officialName: string;
   mask: string;
   institutionId: string;
@@ -90,6 +92,8 @@ declare type Bank = {
   fundingSourceUrl: string;
   userId: string;
   shareableId: string;
+  simulatedBalance: number;
+  simulatedAccountNumber: string;
 };
 
 declare type AccountTypes =
@@ -179,15 +183,6 @@ declare interface PlaidLinkProps {
   dwollaCustomerId?: string;
 }
 
-// declare type User = sdk.Models.Document & {
-//   accountId: string;
-//   email: string;
-//   name: string;
-//   items: string[];
-//   accessToken: string;
-//   image: string;
-// };
-
 declare interface AuthFormProps {
   type: "sign-in" | "sign-up";
 }
@@ -206,7 +201,7 @@ declare interface BankTabItemProps {
 declare interface TotalBalanceBoxProps {
   accounts: Account[];
   totalBanks: number;
-  totalCurrentBalance: number;
+  totalSimulatedBalance: number;
 }
 
 declare interface FooterProps {
@@ -226,9 +221,10 @@ declare interface SiderbarProps {
 
 declare interface RecentTransactionsProps {
   accounts: Account[];
-  transactions: Transaction[];
+  transactions?: Transaction[];
   appwriteItemId: string;
   page: number;
+  transactionsByAccount?: Record<string, Transaction[]>;
 }
 
 declare interface TransactionHistoryTableProps {
@@ -309,11 +305,11 @@ declare interface exchangePublicTokenProps {
 }
 
 declare interface createBankAccountProps {
-  accessToken: string;
+  // accessToken: string;
   userId: string;
-  accountId: string;
+  // accountId: string;
   bankId: string;
-  fundingSourceUrl?: string;
+  // fundingSourceUrl?: string;
   shareableId: string;
 }
 
@@ -327,4 +323,11 @@ declare interface getBankProps {
 
 declare interface getBankByAccountIdProps {
   accountId: string;
+}
+
+declare interface AccountTabsProps {
+  accounts: any[];
+  initialId: string;
+  syncServer?: boolean;
+  children: React.ReactNode;
 }

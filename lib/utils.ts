@@ -178,18 +178,69 @@ export const getTransactionStatus = (date: Date) => {
 
 export const FormSchema = (type: string) =>
   z.object({
-    firstName: type === "sign-in" ? z.string().optional() : z.string().min(3),
-    lastName: type === "sign-in" ? z.string().optional() : z.string().min(3),
-    address1: type === "sign-in" ? z.string().optional() : z.string().max(50),
-    city: type === "sign-in" ? z.string().optional() : z.string().max(50),
+    // 👤 Personal Info Fields
+    firstName:
+      type === "sign-in"
+        ? z.string().optional()
+        : z
+            .string()
+            .min(3, { message: "First name must be at least 3 characters." }),
+
+    lastName:
+      type === "sign-in"
+        ? z.string().optional()
+        : z
+            .string()
+            .min(3, { message: "Last name must be at least 3 characters." }),
+
+    // 🏠 Address Fields
+    address1:
+      type === "sign-in"
+        ? z.string().optional()
+        : z
+            .string()
+            .max(50, { message: "Address cannot exceed 50 characters." }),
+
+    city:
+      type === "sign-in"
+        ? z.string().optional()
+        : z
+            .string()
+            .max(50, { message: "City name cannot exceed 50 characters." }),
+
     state:
-      type === "sign-in" ? z.string().optional() : z.string().min(2).max(2),
+      type === "sign-in"
+        ? z.string().optional()
+        : z
+            .string()
+            .min(2, { message: "Use 2-letter code." })
+            .max(2, { message: "Use 2-letter code." }),
+
     postalCode:
-      type === "sign-in" ? z.string().optional() : z.string().min(3).max(6),
-    dateOfBirth: type === "sign-in" ? z.string().optional() : z.string().min(3),
-    ssn: type === "sign-in" ? z.string().optional() : z.string().min(3),
-    email: z.string().email(),
-    password: z.string().min(8),
+      type === "sign-in"
+        ? z.string().optional()
+        : z
+            .string()
+            .min(3, { message: "Invalid postal code." })
+            .max(6, { message: "Invalid postal code." }),
+
+    // 📅 Identification Fields
+    dateOfBirth:
+      type === "sign-in"
+        ? z.string().optional()
+        : z.string().min(3, { message: "Please enter your date of birth." }),
+
+    ssn:
+      type === "sign-in"
+        ? z.string().optional()
+        : z.string().min(3, { message: "SSN must be at least 3 characters." }),
+
+    // 🔑 Credentials (Active on BOTH tracks)
+    email: z.string().email({ message: "Please enter a valid email address." }),
+
+    password: z
+      .string()
+      .min(8, { message: "Password must be at least 8 characters long." }), // 🚩 Synced with Appwrite
   });
 
 // /constants/categories.ts

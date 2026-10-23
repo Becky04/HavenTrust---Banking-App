@@ -43,7 +43,7 @@ const BankInfo = ({ account, appwriteItemId, type }: BankInfoProps) => {
           src="/icons/connect-bank.svg"
           width={20}
           height={20}
-          alt={account.subtype}
+          alt={account.type}
           className="m-2 min-w-5"
         />
       </figure>
@@ -52,19 +52,19 @@ const BankInfo = ({ account, appwriteItemId, type }: BankInfoProps) => {
           <h2
             className={`text-16 line-clamp-1 flex-1 font-bold text-blue-900 ${colors.title}`}
           >
-            {account.name}
+            {account.officialName}
           </h2>
           {type === "full" && (
             <p
               className={`text-12 rounded-full px-3 py-1 font-medium text-blue-700 ${colors.subText} ${colors.lightBg}`}
             >
-              {account.subtype}
+              {account.type}
             </p>
           )}
         </div>
 
         <p className={`text-16 font-medium text-blue-700 ${colors.subText}`}>
-          {formatAmount(account.currentBalance)}
+          {formatAmount(account.simulatedBalance)}
         </p>
       </div>
     </div>

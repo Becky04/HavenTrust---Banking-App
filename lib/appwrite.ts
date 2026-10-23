@@ -15,10 +15,6 @@ export async function createSessionClient() {
     throw new Error("No session");
   }
 
-  // if (!session?.value) {
-  //   throw new Error("No session");
-  // }
-
   // ✅ FIX: forward cookie instead of setSession
   client.headers["cookie"] = `appwrite-session=${session.value}`;
 
@@ -45,7 +41,7 @@ export async function createAdminClient() {
     get database() {
       return new Databases(client);
     },
-    get user() {
+    get users() {
       return new Users(client);
     },
   };

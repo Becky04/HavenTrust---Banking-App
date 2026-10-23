@@ -11,11 +11,10 @@ export default function RootLayout({
       <div className="auth-asset">
         <div>
           <Image
-            // src="/icons/auth-image.svg"
-            src="/icons/test.png"
+            src="/icons/auth-image.png"
             alt="Auth Image"
-            width={600}
-            height={600}
+            width={800}
+            height={800}
             className="rounded-xl border border-zinc-200/80 shadow-lg shadow-zinc-200/50"
           />
         </div>
