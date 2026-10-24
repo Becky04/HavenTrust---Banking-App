@@ -2,6 +2,8 @@
 
 A unified banking dashboard that aggregates multiple bank accounts in one place — view balances, track transactions, and manage transfers without switching between apps.
 
+🔗 Live Deployment: https://haven-trust-banking-app-7kej.vercel.app/
+
 ## Features
 
 - Link and view multiple bank accounts from a single dashboard
